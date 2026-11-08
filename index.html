@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBHS Clinic Portal</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f4f7f6; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        h2 { color: #007bff; text-align: center; margin-bottom: 20px; }
+        label { display: block; margin-top: 12px; font-weight: bold; font-size: 14px; color: #333; }
+        input, select, textarea { 
+            font-size: 14px; 
+            padding: 10px; 
+            width: 100%; 
+            margin-top: 5px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+        }
+        textarea { resize: vertical; height: 70px; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 20px; 
+            font-size: 15px; 
+            font-weight: bold; 
+            border-radius: 4px; 
+        }
+        button:hover { background: #0056b3; }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } 
+            from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBU42YfMdQQH10iwbvCwjS2_3jmM1f_HXg",
+            authDomain: "sbhsclinic-2bc77.firebaseapp.com",
+            projectId: "sbhsclinic-2bc77",
+            storageBucket: "sbhsclinic-2bc77.firebasestorage.app",
+            messagingSenderId: "111813826787",
+            appId: "1:111813826787:web:5dac473d81b525f8488dd6",
+            measurementId: "G-T9B208DEZ6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const clinicRef = collection(db, "clinic_records");
+
+        window.submitRecord = async function() {
+            const studentName = document.getElementById("studentName").value.trim();
+            const studentNum = document.getElementById("studentNum").value.trim();
+            const schoolLevel = document.getElementById("schoolLevel").value;
+            const section = document.getElementById("section").value.trim();
+            const teacher = document.getElementById("teacher").value.trim();
+            const shift = document.getElementById("shift").value;
+            const isAthlete = document.getElementById("isAthlete").value;
+            const visitDate = document.getElementById("visitDate").value.trim();
+            const condition = document.getElementById("condition").value.trim();
+
+            if (!studentName || !studentNum || !section || !teacher || !visitDate || !condition) {
+                alert("Please fill in all required fields!");
+                return;
+            }
+
+            try {
+                await addDoc(clinicRef, {
+                    name: studentName,
+                    studentNumber: studentNum,
+                    schoolLevel: schoolLevel,
+                    section: section,
+                    teacher: teacher,
+                    shift: shift,
+                    athlete: isAthlete,
+                    date: visitDate,
+                    condition: condition,
+                    status: "Ongoing",
+                    timestamp: serverTimestamp()
+                });
+
+                document.getElementById("studentName").value = "";
+                document.getElementById("studentNum").value = "";
+                document.getElementById("section").value = "";
+                document.getElementById("teacher").value = "";
+                document.getElementById("visitDate").value = "";
+                document.getElementById("condition").value = "";
+                alert("Your clinic record has been successfully saved!");
+            } catch (error) {
+                console.error(error);
+                alert("An error occurred while saving.");
+            }
+        };
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>SBHS Clinic Portal</h2>
+        
+        <label for="studentName">Student Name:</label>
+        <input type="text" id="studentName" placeholder="Juan Dela Cruz">
+
+        <label for="studentNum">Student Number:</label>
+        <input type="text" id="studentNum" placeholder="2026-00000">
+
+        <label for="schoolLevel">Department / Level:</label>
+        <select id="schoolLevel">
+            <option value="High School">High School (Grades 7-10)</option>
+            <option value="Senior High School">Senior High School (Grades 11-12)</option>
+        </select>
+
+        <label for="section">Section:</label>
+        <input type="text" id="section" placeholder="e.g., Grade 10 - St. Matthew">
+
+        <label for="teacher">Teacher Name:</label>
+        <input type="text" id="teacher" placeholder="Adviser or Subject Teacher">
+
+        <label for="shift">Shift:</label>
+        <select id="shift">
+            <option value="AM Shift">AM Shift</option>
+            <option value="PM Shift">PM Shift</option>
+            <option value="Whole Day">Whole Day</option>
+        </select>
+
+        <label for="isAthlete">Athlete Status:</label>
+        <select id="isAthlete">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+        </select>
+
+        <label for="visitDate">Date of Visit:</label>
+        <input type="date" id="visitDate">
+
+        <label for="condition">Condition / Symptoms:</label>
+        <textarea id="condition" placeholder="Describe what you are feeling..."></textarea>
+
+        <button onclick="submitRecord()">Submit Record</button>
+    </div>
+
+</body>
+</html>
